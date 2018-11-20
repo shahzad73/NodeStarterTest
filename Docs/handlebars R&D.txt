@@ -1,0 +1,140 @@
+<html>
+  <title>{{title}}</title>
+  <body>
+    <h1>{{title}}</h1>
+	  This is a page
+	  <br><br>
+      <h2>{{message}}</h2>
+      <br><br> {{author.name}}
+    <hr />
+    <footer>
+      <small>Rendered by Handlebars</small>
+    <footer>
+
+	<br>
+	<br>
+
+
+
+	<div>
+		{{#each languages}}
+			<p>{{@index}}. {{this}}</p>
+		{{/each}}
+	</div>
+
+
+	<div>
+		{{#each arrayOfData}}
+			{{#if @first}}
+				1111.
+			{{/if}}
+			{{#if @last}}
+				>>>>
+			{{/if}}
+			<p>{{@index}}. {{this.name}} - {{this.city}}</p>
+		{{/each}}
+	</div>
+
+
+
+	{{#if checkCondition}}
+		We have the true condition because checkCondition = true
+	{{else}}
+		False false
+	{{/if}}
+
+
+	<br><br>
+	{{#list peopleOFList}}{{firstName}} {{lastName}}{{/list}}
+	<br>
+	{{formatPhoneNumber "3232323232323"}}
+
+
+
+
+
+	<br><br><br>
+	{{ @index }} return the index (0, 1, 2...)
+	{{ @key }} return the key (Field, Type, etc)
+	{{ @first }} boolean to mark if this is the first row in the array
+	{{ @last }} boolean to mark if this is the last row in the array
+	<br>
+	http://webapplog.com/handlebars/
+
+  </body>
+<html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var express = require('express');
+var router = express.Router();
+var Handlebars = require('handlebars');
+
+
+Handlebars.registerHelper('list', function(items, options) {
+  var out = "<ul>";
+
+  for(var i=0, l=items.length; i<l; i++) {
+    out = out + "<li>" + options.fn(items[i]) + "</li>";
+  }
+
+  return out + "</ul>";
+});
+Handlebars.registerHelper("formatPhoneNumber", function(phoneNumber) {
+  phoneNumber = phoneNumber.toString();
+  return "(" + phoneNumber.substr(0,3) + ") " + phoneNumber.substr(3,3) + "-" + phoneNumber.substr(6,4);
+});
+
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  res.render('index', {
+    title: 'Ride the Handlebars automated',
+    author: {name: 'Shahzadqwddq', age:67},
+    message: 'Its now working',
+	languages: ['php', 'node', 'ruby'],
+
+	arrayOfData: [
+		{"name":"11111", "city":"LHR"},
+		{"name":"22222", "city":"KAR"},
+		{"name":"33333", "city":"LHR"}
+	],
+
+
+	checkCondition: true,
+	anotherCondition : "admin",
+
+
+  peopleOFList: [
+    {firstName: "Yehuda", lastName: "Katz"},
+    {firstName: "Carl", lastName: "Lerche"},
+    {firstName: "Alan", lastName: "Johnson"}
+  ]
+
+
+
+  });
+});
+
+module.exports = router;

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html ng-app="ngclient">
+
+<head>
+  <title>ngClient</title>
+
+  <link rel="stylesheet" type="text/css" href="libs/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="singlepage/app.css">
+
+  <script type="text/javascript" src="javascripts/angular.min-5.js"></script>
+  <script type="text/javascript" src="javascripts/angular-route.min-5.js"></script>
+
+  <script type="text/javascript" src="singlepage/angular.singlepage.app.js"></script>
+  <script type="text/javascript" src="singlepage/angular.singlepage.auth.controller.js"></script>
+
+</head>
+
+<body>
+  <div ng-include="'singlepage/partials/header.html'"></div>
+  <div class="container" ng-view></div>
+  <div ng-include="'singlepage/partials/footer.html'"></div>
+</body>
+
+</html>

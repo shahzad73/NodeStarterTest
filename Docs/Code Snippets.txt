@@ -1,0 +1,681 @@
+
+
+
+consider ValidateLoginUser.js as a function that is called infront of a request pattent like in this case before
+each request    an example of middle ware
+
+                      app.all('/*', [require('./config/ValidateLoginUser')]);
+
+
+
+
+
+
+
+Creating function library
+--------------------------------------------------------
+
+create a file named auth.js in any directory as
+
+var auth = {
+
+    login: function(req, res) {
+        return "login";
+    },
+
+    validate: function(req, res) {
+      return "validate";
+    }
+
+
+		validateUser: function(username)
+		{
+	    // spoofing the DB response for simplicity
+	    var dbUserObj = { // spoofing a userobject from the DB.
+	      name: 'arvind',
+	      role: 'admin',
+	      username: 'arvind@myapp.com'
+	    };
+
+	    return dbUserObj;
+	  },
+
+}
+
+module.exports = auth;
+
+
+now you can call its functions as
+
+var auth = require('./config/auth.js');
+console.log(auth.login());
+
+
+
+you can also target a specific function wihtin this library
+var VUFun = require('../routes/auth').validateUser;
+and then call this function as   VUFun("dddd")     it will return dbUserObj
+
+
+--------------------------------------------------------
+
+
+
+
+
+
+creating middle ware
+-------------------------------------------------------------------------------------
+
+
+
+module.exports = function(req, res, next) {
+    console.log("Here i am in the validation log user");
+    next();
+};
+
+
+
+
+
+
+
+
+
+
+
+
+Getting UUID and then inseting a record in the cassandra table ------------------------------------------------
+
+		 //var uuid11 = commons.GetUUID(1);
+		 //sql = "insert into Tempoli_Users(id, name, address ,phone ,username ,userpassword) values(" + uuid11 + ", 'nnn', 'aaa', '111', 'us1', 'ps1')";
+		 sql = "insert into Tempoli_Users(name, address ,phone ,username ,userpassword) values('user2', 'add123', '111', 'us8', 'ps1')";
+		 commons.RunNonQuery
+		 (
+				sql,
+				res,
+				//{id:uuid11},    //this data will be received back in the callback. you can send any data over here
+				{username:'us8'},
+				function(data, res)
+				{
+
+						commons.GetSingleRecordFromTable
+						(
+									"select * from Tempoli_Users where username = '" + data.username + "'",
+									res,
+									function(jsondata, res)
+									{
+												 res.json( jsondata );
+									}
+						);
+
+				}
+		 );
+
+
+
+
+
+
+
+Google GCloud R&D ------------------------------------------------------------------------
+
+app.get('/test', function(req, res, next) {
+
+					var gcloud = require('gcloud');
+
+
+
+				/*
+					DataStore    Saving and Getting the entiry
+
+					var dataset = gcloud.datastore.dataset({
+						projectId: 'calm-bison-110808',
+						keyFilename: 'D:\\nodejs\\My_First_Project-Google_Service_Account.json'
+					});
+
+
+					// Save data to your dataset.
+					var blogPostData = {
+						title: 'Shahzad Aslam - 2',
+						author: 'DataStore connection',
+						isDraft: true
+					};
+
+
+					var blogPostKey = dataset.key({
+						namespace: 'namespace1',
+						path: ['people', 'name123']           //people is knid and name123 is the ID/Name of the entiry
+					});
+
+
+					dataset.save({
+						key: blogPostKey,
+						data: blogPostData
+					}, function(err) {
+						// `blogPostKey` has been updated with an ID so you can do more operations
+						// with it, such as an update:
+						if(err)
+							console.log(err);
+						else
+							console.log("blog created");
+					});
+
+
+					//get the same entity from the DataStore
+					dataset.get(blogPostKey, function(err, entity, apiResponse) {
+						console.log(entity.data.author);
+					});
+
+				*/
+
+
+
+
+
+
+
+				/*
+					//BigQuery
+
+					var bigquery = gcloud.bigquery({
+						projectId: 'calm-bison-110808',
+						keyFilename: 'D:\\nodejs\\My_First_Project-Google_Service_Account.json'
+					});
+
+					bigquery.query("select * from bq1.tab1")
+						.on('error', console.error)
+						.on('data', function(row) {
+							 console.log(row.name);
+						})
+						.on('end', function() {
+							// All rows retrieved.
+						});
+
+				*/
+
+
+
+
+				/*
+
+					//Storage
+
+					var gcs = gcloud.storage({
+						projectId: 'my-project',
+						keyFilename: 'D:\\nodejs\\My_First_Project-Google_Service_Account.json'
+					});
+
+
+					var bucket = gcs.bucket('www.ibusiness724.com');
+
+					//bucket.makePublic(function(err) {});
+
+					bucket.upload('D:\\index.html', function(err, file) {
+						if (!err) {
+							//res.json({"aa":err});
+						}
+						else {
+								//var myFile = bucket.file('index.html');
+								//myFile.makePublic(function(err, apiResponse) {});
+						}
+					});
+				*/
+
+				res.json({"aa":__dirname});
+});
+
+
+
+
+
+
+Call fuction chaining -------------------------------------------
+
+        var fun1 = function (request, response, next) {
+          request.Responses = {};
+          request.Responses.result1 = {"data1":"itm1", "data2":"itm2"};
+          console.log("fun1");
+          return next();
+        }
+        var fun2 = function (request, response, next) {
+          request.Responses.result2 = {"data11":"itm11", "data22":"itm22"};
+              console.log("fun2");
+          return next();
+        }
+        router.get('/test', fun1, fun2, function(req, res, next)
+        {
+            res.json(req.Responses);
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Looping through JSON
+-------------------------------
+
+							    for(var z=0;	z<json.cols.length;		z++)
+							    {
+							        console.log(json.cols[z]);
+							    }
+
+
+
+ var arr = [ {"id":"10", "class": "child-of-9"}, {"id":"11", "classd": "child-of-10"}];
+
+    for(var i=0;i<arr.length;i++){
+        var obj = arr[i];
+        for(var key in obj){
+            var attrName = key;
+            var attrValue = obj[key];
+        }
+    }
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------
+get and post routers
+--------------------------------------------------------------------------------------------------
+
+		router.post('/testurl', function(req, res, next) {
+			/*
+						$.ajax({
+						  method: "Post",
+						  url: "/testurl",
+						  data: { name: "banchot", location: "Boston" }
+						}).done(function( msg )
+						{
+							alert( "Data Saved: " + msg.op );
+						});
+			*/
+
+			res.json({op:req.body.name});
+		});
+
+
+		router.get('/testurl2', function(req, res, next) {
+			console.log(req.query['name']);
+			res.json({op:req.query['name']});
+		});
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------
+Amazon AWS SDK    S3
+------------------------------------------------------------------------------------------------------
+
+
+		var AWS = require('aws-sdk');
+
+    AWS.config.update({accessKeyId: 'AKIAI4BXHAEFUFPMUF5A', secretAccessKey: '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'});
+
+    var s3 = new AWS.S3();
+    var data = {Bucket: 'www.business724.com', ContentType: "text/html",  Key: 'test5.html', Body: '<html><body>Allah is one and great 55555 ....</body></html>'};
+
+
+
+    s3.putObject(data, function (perr, pres) {
+        if (perr) {
+            console.log("Error uploading data: ", perr);
+        } else {
+            console.log("Successfully uploaded data to myBucket/myKey");
+        }
+    });
+
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+--------------------------------------------------------------------------------------
+																	Using app.param
+--------------------------------------------------------------------------------------
+
+		app.param('username', function (request, response, next, username) {
+		  // ... Perform database query and
+		  // ... Store the user object from the database in the req object
+		  req.user = user;
+		  return next();
+		});
+
+
+		app.get('/users/:username', function(request, response, next) {
+		  //... Do something with req.user
+		  return res.render(req.user);
+		});
+
+
+		app.get('/admin/:username', function(request, response, next) {
+		  //... Same thing, req.user is available!
+		  return res.render(user);
+		});
+
+
+
+
+
+
+
+app.param('id', function(request, response, next, id){
+  // Do something with id
+  // Store id or other info in req object
+  // Call next when done
+  next();
+});
+
+app.get('/api/v1/stories/:id', function(request, response){
+  // Param middleware will be executed before and
+  // We expect req objects to already have needed info
+  // Output something
+  res.send(data);
+});
+
+
+
+
+app.param('storyId', function(request, response, next, storyId) {
+  // Fetch the story by its ID (storyId) from a database
+  // Save the found story object into request object
+  request.story = story;
+
+});
+app.param('elementId', function(request, response, next, elementId) {
+  // Fetch the element by its ID (elementId) from a database
+  // Narrow down the search when request.story is provided
+  // Save the found element object into request object
+  request.element = element;
+});
+app.get('/api/v1/stories/:storyId/elements/:elementId', function(request, response){
+  // Now we automatically get the story and element in the request object
+  res.send({ story: request.story, element: request.element});
+});
+app.post('/api/v1/stories/:storyId/elements', function(request, response){
+  // Now we automatically get the story in the request object
+  // We use story ID to create a new element for that story
+  res.send({ story: request.story, element: newElement});
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------
+Organizing the request
+--------------------------------------------------------
+var auth = function (request, response, next) {
+  // ... Authorization and authentication
+  return next();
+}
+var getStory = function (request, response, next) {
+  // ... Database request for story
+  return next();
+}
+var getUsers = function (request, response, next) {
+  // ... Database request for users
+  return next();
+}
+var renderPage = function (request, response) {
+ if (req.story) res.render('story', story);
+ else if (req.users) res.render('users', users);
+ else res.end();
+}
+app.get('/api/v1/stories/:id', auth, getStory, renderPage);
+app.get('/admin', auth, getUsers, renderPage);
+
+
+
+
+
+
+var authAdmin = function (request, response, next) {
+  // ...
+  return next();
+}
+var getUsers = function (request, response, next) {
+  // ...
+  return next();
+}
+var renderUsers = function (request, response) {
+  // ...
+  res.end();
+}
+var admin = [authAdmin, getUsers, renderUsers];
+app.get('/admin', admin);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------
+app.all()
+----------------------------------------------------------------------------------
+The app.all() method allows the execution of specified request handlers on a particular path regardless of what the HTTP method of
+the request is. This procedure might be a lifesaver when defining global or namespace logic, as in
+this example:
+
+app.all('*', userAuth);
+...
+app.all('/api/*', apiAuth);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------
+Reg Ex expressions
+---------------------------------------------------------------
+router.route('/user/:username([A-Z]+)/:thing')
+  .get(function(req, res) {
+    res.send('Hey, ' + req.params.username + '. I am ' + req.params.thing + '!');
+});
+
+
+
+As a very simple example, this updated route will now only accept usernames that are composed of uppercase letters.
+
+
+
+
+	photoRouter.get(‘/:id([0-9]+)’, lookupPhoto, function(req, res) {
+	Where + indicates one or more of the preceding definition (a number 0–9).
+
+
+
+
+
+
+
+
+
+
+
+
+router.param('username', function(req, res, next, username) {
+  if(username.match(/([0-9]+)/) !== null)
+    next();
+  else
+    next(err);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------
+Middle Wares
+-----------------------------------------------------------
+// route middleware that will happen on every request
+router.use(function(req, res, next) {
+
+    // log each request to the console
+    console.log(req.method, req.url);
+
+    // continue doing what we were doing and go to the route
+    next();
+});
+
+
+
+
+
+var app = express();
+
+app.use(function(req, res, next) {
+  console.log('%s %s', req.method, req.url);
+  next();
+});
+
+app.get('/', function(req, res, next) {
+  res.send('Hello World!');
+});
+
+app.get('/help', function(req, res, next) {
+  res.send('Nope.. nothing to see here');
+});
+
+
+
+
+
+
+
+
+
+Imeagine a scenario where you wanted to load a session from the database before processing any request.
+
+app.use(function(req, res, next) {
+  db.load(function(err, session) {
+    if (err) {
+      return next(err);
+    }
+    else if (!session) {
+      return next(new Error('no session found'));
+    }
+    req.session = session;
+    next();
+  });
+});
+
+app.get('/', function(req, res, next) {
+  // we can use req.session because middleware HAD to run first
+});
+
+
+
+
+
+
+
+
+Up till now you have seen how to add middleware for every request, but what if you want to limit middleware to certain paths.
+Let’s say that routes under /users need some special middleware. How can you accomplish that?
+
+app.use('/users', function(req, res, next) {
+  // invoked for any request starting with /users
+  next();
+});
+
+app.get('/users/daily', function(req, res, next) {});
+
+
+
+
+
+----------------------------------------------------------
+Ordering does matter        here general app.use will only be applied after it       that is app.post
+-----------------------------------------------------------
+app.get('/', function(req, res) { res.send('hello'); });
+
+app.use(function(req, res, next) {
+  next();
+});
+
+app.post('/', function(req, res) { res.send('bye'); });
+
+While not always a pitfall, it is important to understand that even though app.use() is invoked for every HTTP verb,
+middleware is processed in order with route handling. Since our route handler for GET responds to the request, our middleware
+will never run for GET requests, but our POST handler is after the middleware, thus allowing it to be invoked first.

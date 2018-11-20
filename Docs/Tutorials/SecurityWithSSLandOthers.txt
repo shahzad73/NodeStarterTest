@@ -1,0 +1,255 @@
+Generating Certificate
+http://www.gettingcirrius.com/2012/06/automating-creation-of-certificate.html
+
+
+
+
+http://scottksmith.com/blog/2014/09/04/simple-steps-to-secure-your-express-node-application/
+
+
+4 Simple Steps to Secure Your Express Node Application
+SEP 4TH, 2014
++ Degreed
+While not an exhaustive article on securing web applications, the four steps shown here will get you pretty far along in building a secure web
+application.
+
+HTTPS
+
+One of the first steps you should take to secure your web application is to use HTTPS. For those of you that think it is too hard, too expensive,
+ or too compute intensive, hopefully I can convince you otherwise.
+
+So why would we want to use HTTPS? The number one reason is to keep people and devices from viewing or modifying content being sent and received.
+ There are so many hacks and exploits that can be done when not using a secure connection. It is foolhardy to not use HTTPS.
+
+So how would you get up and running with HTTPS without shelling out a lot of money? Let me introduce you to StartSSL. StartSSL offers free Class 1
+certificates you can use to implement HTTPS on your site. While their UI is a bit clunky and cumbersome to work with, the fact that you can get a valid certificate is well worth it.
+
+Cookies
+
+Now that you have HTTPS setup and communication to your server is secure, we need to look at securing your cookies. Assuming your web application has
+some form of authentication, it is likely you are using cookies to maintain session state.
+
+HttpOnly
+
+HttpOnly is a flag that can be included in a Set-Cookie response header. The presence of this flag will tell browsers to not allow client side script
+ access to the cookie (if the browser supports it). This is important because it helps protect your cookie data from malicious scripts and helps
+ mitigate the most common XSS attacks.
+
+Here is how you can tell Express to set your cookie using the HttpOnly flag:
+
+1
+res.cookie('sessionid', '1', { httpOnly: true });
+Secure
+
+Equally important as the HttpOnly flag is the Secure flag. This too is included in a Set-Cookie response header. The presence of the secure flag
+tells web browsers to only send this cookie in requests going to HTTPS endpoints. This is very important, as the cookie information will not be sent
+on an unencrypted channel. This helps mitigate some exploits where your browser is redirected to the HTTP endpoint for a site rather than the HTTPS
+endpoint and thus potentially exposing your cookies to someone in the middle of the traffic.
+
+Here is how you can tell Express to set your cookie using the Secure flag:
+
+1
+res.cookie('sessionid', '1', { secure: true });
+Cross-site Request Forgery
+
+“Cross-Site Request Forgery (CSRF) is an attack that tricks the victim into loading a page that contains a malicious request. It is malicious in
+the sense that it inherits the identity and privileges of the victim to perform an undesired function on the victim’s behalf, like change the
+victim’s e-mail address, home address, or password, or purchase something. CSRF attacks generally target functions that cause a state change on
+the server but can also be used to access sensitive data.” - Open Web Application Security Project)
+
+To mitigate these types of attacks, you can use a secret, unique and random token that is embedded by the web application in all HTML forms and
+then verified on the server side when submitted.
+
+Here is how you can implement this protection using Express and Jade:
+
+
+var express = require('express');
+var session = require('express-session');
+var csrf = require('csurf');
+
+var app = express();
+
+app.use(session({
+  secret: 'My super session secret',
+  cookie: {
+    httpOnly: true,
+    secure: true
+  }
+}));
+
+app.use(csrf());
+
+app.use(function(req, res, next) {
+  res.locals._csrf = req.csrfToken();
+  next();
+});
+
+
+
+
+form(action='/account/profile', method='POST')
+  input(type='hidden', name='_csrf', value=_csrf)
+  div
+    label(for='username') Username
+    input(type='text', name='username', id='username')
+  div
+    input(type='submit', value='Update Profile')
+This example is a little more detailed because we need to see how it all works with Express, Sessions, and our View. The csurf module requires
+either session middleware or cookie-parser to be initialized first. Learn more about the csurf module here and the express-session module here.
+
+Also worth mentioning (thanks to Evan Johnson for pointing this out) is that XHR requests need to include the CSRF token. Here is an example of
+how you could do that.
+
+
+
+var csrf_token = '<%= token_value %>';
+
+$("body").bind("ajaxSend", function(elm, xhr, s){
+  if (s.type == "POST") {
+    xhr.setRequestHeader('X-CSRF-Token', csrf_token);
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://blog.liftsecurity.io/2012/12/07/writing-secure-express-js-apps
+
+
+Writing secure express.js apps
+posted Dec 07, 2012 by^lift Security
+Update: We understand that having education as part of your security process is important, that is why we’ve launched the in depth and hands on
+Node.js Development Education Series
+
+Here is a starting guide for securing express.js applications, specifically Express v3. It is by no means a comprehensive guide on web application
+ security. Standard rules and practices apply to express.js apps just as if they would to Rails, Django or any other web application.
+
+I’m going to hit the high points of items that always seem to come up.
+
+Don’t run as root
+It’s been long foretold by the ancient bearded ops that one shall run a service with the least amount of privilege necessary and no more. However
+ this ancient folklore seems to be forgotten from time to time when less experienced devs run into the obvious problem of running their new webapp
+ on ports 80 and 443. Running as root solves this quickly and they can move on to other, more fun challenges.
+
+One way to approach this is to drop process privileges after you bind to the port using something like this:
+
+http.createServer(app).listen(app.get('port'), function(){
+    console.log("Express server listening on port " + app.get('port'));
+    process.setgid(config.gid);
+    process.setuid(config.uid);
+});
+Note: As Joshua Heiks points out in the comments below the gid should be set before the uid.
+
+There are a couple caveats to this. It’s not available on Windows and if you drop privileges before your bind actually finishes you could run into
+ issues, but to be honest, I have never had this happen.
+
+Another is to use something like authbind or by putting something like nginx or another proxy in front of your application. Whatever you do, just
+ don’t freak’n run as root.
+
+Sessions
+Most express apps are going to deal with user sessions at some point.
+
+Session cookies should have the SECURE and HTTPOnly flags set. This ensures they can only be sent over HTTPS (you are using HTTPS, right?) and
+there is no script access to the cookie client side.
+
+  app.use(express.session({
+    secret: "notagoodsecretnoreallydontusethisone",
+    cookie: {httpOnly: true, secure: true},
+  }));
+Security Headers
+There are plenty of security headers that help improve security with just a line or two of code. I’m not going to explain them all, but you
+should read and familiarize yourself with them. A great article to read is Seven Web Server HTTP Headers that Improve Web Application Security
+for Free
+
+The easiest way to implement most of these headers in Express is to use the helmet middleware.
+
+npm install helmet
+
+Then we can add them to our app.configure for express
+
+app.configure(function(){
+  app.set('port', process.env.PORT || 3000);
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'jade');
+  app.use(express.favicon());
+  app.use(express.logger('dev'));
+  app.use(express.bodyParser());
+  app.use(helmet.xframe());
+  app.use(helmet.iexss());
+  app.use(helmet.contentTypeOptions());
+  app.use(helmet.cacheControl());
+  app.use(express.methodOverride());
+  app.use(express.cookieParser());
+  app.use(express.session({
+    secret: "notagoodsecret",
+    cookie: {httpOnly: true, secure: true},
+  }));
+  app.use(app.router);
+  app.use(express.static(path.join(__dirname, 'public')));
+});
+Cross-Site Request Forgery (CSRF) Protection
+Express provides CSRF protection using built in middleware. It’s not enabled by default. Documentation for the express.csrf() middleware is
+available here.
+
+To enable CSRF protection let’s add it to the app.configure section. It should come after the session parser and before the router.
+
+The first line we add is to add csrf tokens to the users session.
+
+    app.use(express.csrf());
+Then, since Express v3 did away with dynamic helpers, we use a small middleware to add the token to our locals making it available to templates.
+
+  app.use(function (req, res, next) {
+    res.locals.csrftoken = req.session._csrf;
+    next();
+  });
+The final example, putting it together:
+
+app.configure(function(){
+  app.set('port', process.env.PORT || 3000);
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'jade');
+  app.use(express.favicon());
+  app.use(express.logger('dev'));
+  app.use(express.bodyParser());
+  app.use(helmet.xframe());
+  app.use(helmet.iexss());
+  app.use(helmet.contentTypeOptions());
+  app.use(helmet.cacheControl());
+  app.use(express.methodOverride());
+  app.use(express.cookieParser());
+  app.use(express.session({
+    secret: "notagoodsecret",
+    cookie: {httpOnly: true},
+  }));
+  app.use(express.csrf());
+  app.use(function (req, res, next) {
+    res.locals.csrftoken = req.session._csrf;
+    next();
+  });
+  app.use(app.router);
+  app.use(express.static(path.join(__dirname, 'public')));
+});
+Here is an example of using the csrf token in a jade template:
+
+form(method="post",action="/login")
+  input(type="hidden", name="_csrf", value="#{csrftoken}")
+  button(type="submit") Login
+NOTE: I removed the secure: true for this example so it would work without SSL if you wanted to test it out.
+
+Those are just a few things to get you started securing your Express app. Chances are you will be doing that in every app you create, so I
+created the express-secure-skeleton app to make playing around with these security features a bit easier. Please fork and contribute.

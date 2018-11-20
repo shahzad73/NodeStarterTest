@@ -1,0 +1,100 @@
+Create Keyspace business724 with REPLICATION = {'class':'SimpleStrategy', 'replication_factor':1}
+
+
+
+
+
+create table Tempoli_Users(name varchar, address varchar, phone varchar, username varchar, userpassword varchar, PRIMARY KEY(username)) ;
+    insert into Tempoli_Users(id, name, address ,phone ,username ,userpassword) values(now(), 'nnn', 'aaa', '111', 'us1', 'ps1');
+
+
+
+
+create table Tempoli_StaticContents (id	uuid, username varchar, ProjectName varchar, Descs varchar, ProjectType	int, SiteMenu varchar, SiteCurrentLocation	varchar, SiteDirectoryInCurrentLocation	varchar, SiteName varchar, SiteCurrentLocationInterface varchar, PRIMARY KEY(id, username));
+
+
+
+
+
+create table Tempoli_StaticContentPages(id uuid primary key, StaticContentID uuid, PageName	varchar, PageFile	varchar, PageTypeID	int);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Using Lists in tables
+-----------------------------------------------------------------------------------------------------
+ALTER TABLE users ADD top_tickers list<text>;
+
+UPDATE users SET top_tickers = ['GOOG'] WHERE email = 'foo@bar.com';
+
+UPDATE users SET top_tickers = top_tickers + ['AMZN'] WHERE email = 'foo@bar.com';
+
+
+
+
+
+
+
+
+
+
+Using Sets in tables
+-----------------------------------------------------------------------------------------------------
+CREATE TABLE users ( email TEXT PRIMARY KEY, portfolios SET@UUID:, tickers SET@TEXT: );
+
+UPDATE users SET portfolios = portfolios + {756716f7-2e54-4715-9f00-91dcbea6cf50}, tickers = tickers + {'AMZN'} WHERE email = 'foo@bar.com';
+
+UPDATE users SET portfolios = portfolios + {756716f7-2e54-4715-9f00-91dcbea6cf50}, tickers = tickers + {'GOOG'} WHERE email = 'foo@bar.com';
+
+
+
+
+Using Maps
+----------------------------------------------------------------------------------------------------
+
+ALTER TABLE users ADD ticker_updates map<text, timestamp>;
+
+UPDATE users SET ticker_updates = { 'AMZN':'2013-06-13 11:42:12' } WHERE email = 'foo@bar.com';
+
+UPDATE users SET ticker_updates['GOOG'] = '2013-06-13 12:51:31' WHERE email = 'foo@bar.com';     //now we will have 2 properties in the map bag

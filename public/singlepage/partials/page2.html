@@ -1,0 +1,21 @@
+<div class="container" ng-controller="Page2Ctrl">
+
+  <div class="page-header">
+    <h3>Select an item
+      <code>/api/v1/product/2</code>
+    </h3>
+  </div>
+
+  <select ng-model="itemtofeatch" ng-change="GetProductFromBackend()" ng-init="itemtofeatch = options[0]">
+     <option ng-repeat="pp in productslist" value="{{pp.id}}">
+         {{pp.name}}
+     </option>
+  </select>
+
+  <br>
+  ID: {{prodid}}
+  <br>
+  Name: {{prodname}}
+
+
+</div>

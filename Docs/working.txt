@@ -1,0 +1,194 @@
+
+
+Credentials
+--------------------------------------------------------------------------------------------------------------------------
+
+Amazon
+
+User Name,Access Key Id,Secret Access Key
+business724,AKIAI4BXHAEFUFPMUF5A,bzYTCMSi4bwUiIj5x/AvZLstF+fkXtPBSdz/EGG9
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+https://www.npmjs.com/package/helmet
+
+
+node js   security checklist
+https://blog.risingstack.com/node-js-security-checklist/
+
+
+
+https://medium.com/@jeffandersen/building-a-node-js-rest-api-with-express-part-two-9152661bf47
+
+
+
+
+
+
+Gogle OAuth API client
+
+Here is your client ID
+860277958534-nujgvkjt7tkdbupspdcsg524ibqjnfed.apps.googleusercontent.com
+
+Here is your client secret
+wOoOzNOowG7ztcT4P6Isgzlk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports = function(app, passport) {
+
+
+
+
+
+
+        //This function will be called before any of following get or post
+        app.use(function(req, res, next) {
+          console.log('- %s - %s  ', req.method, req.url);
+          next();
+        });
+
+
+
+        /* GET home page. */
+        app.get('/', function(req, res, next) {
+
+
+
+        });
+
+
+
+        app.get('/loginform', function(req, res, next)
+        {
+              res.render('login', {
+                  message: req.flash('loginMessage'),
+
+                  partials:
+                  {
+             				Public_Header:'partials/publicheader',
+             				Public_Footer:'partials/publicfooter',
+             				Common_Header:'partials/commonheader',
+             				Common_Footer:'partials/commonfooter',
+             			}
+
+              });
+        });
+
+
+
+
+
+        app.get('/signupform', function(req, res)
+        {
+            res.render('signupform', {
+                message: req.flash('signupMessage'),
+
+                partials:
+                {
+                  Public_Header:'partials/publicheader',
+                  Public_Footer:'partials/publicfooter',
+                  Common_Header:'partials/commonheader',
+                  Common_Footer:'partials/commonfooter',
+                }
+            });
+        });
+
+
+
+
+        app.get('/profile', isLoggedIn, function(req, res) {
+            res.render('profile', {
+                user : req.user // get the user out of session and pass to template
+            });
+        });
+
+
+        app.get('/logout', function(req, res) {
+
+        });
+
+
+
+        app.get('/getinfo', function(req, res, next) {
+
+               cassandra.GetSingleRecordFromTable
+               (
+                     "Select * from Tempoli_Users where username = 'us6'",
+                     function(err, jsondata)
+                     {
+                          if(!err)
+                              res.json(jsondata);
+                          else {
+                              res.json({Error:err});
+                          }
+                     }
+               );
+
+        });
+
+
+
+
+        app.get('/chkparam/:name', function(req, res) {
+          res.json(200, { "hello": req.params.name });
+        });
+
+
+
+
+};
+
+
+
+// route middleware to make sure a user is logged in
+function isLoggedIn(req, res, next) {
+/*
+    // if user is authenticated in the session, carry on
+    if (req.isAuthenticated())
+        return next();
+
+    // if they aren't redirect them to the home page
+    res.redirect('/');
+*/
+        return next();
+}
